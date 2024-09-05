@@ -1,37 +1,57 @@
 const User = require("../Model/UserModel");
+const multer = require('multer');
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Display all users
-const getAllUsers = async (req, res, next) => {
-  let users;
+const getAllUsers = async (req, res) => {
   try {
-    users = await User.find();
+    const users = await User.find();
+    // Convert image buffers to base64
+    const updatedUsers = users.map(user => ({
+      ...user._doc,
+      Photos: user.Photos ? {
+        data: user.Photos.data.toString('base64'),
+        contentType: user.Photos.contentType,
+      } : null
+    }));
+    res.json({ users: updatedUsers });
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Error fetching users" });
   }
-  //if any users not found
-  if (!users) {
-    return res.status(404).json({ message: "No users found" });
-  }
-
-  //display all users
-  return res.status(200).json({ users });
 };
 
 // Add a new user
 const addUsers = async (req, res, next) => {
-  const { Hall_Name, Capacity, Location, Price, Hall_Type, Photos } = req.body;
+  upload.single('Photos')(req, res, async (err) => {
+      if (err) {
+          return res.status(400).json({ message: "Error uploading file", error: err });
+      }
 
-  let user;
-  try {
-      user = new User({ Hall_Name, Capacity, Location, Price, Hall_Type, Photos });
-      await user.save();
-  } catch (err) {
-      console.log(err);
-      return res.status(400).json({ message: "Error adding user", error: err });
-  }
+      const { Hall_Name, Capacity, Location, Price, Hall_Type } = req.body;
 
-  return res.status(201).json({ user });
+      let user;
+      try {
+          user = new User({
+              Hall_Name,
+              Capacity,
+              Location,
+              Price,
+              Hall_Type,
+              Photos: {
+                  data: req.file.buffer,
+                  contentType: req.file.mimetype
+              }
+          });
+          await user.save();
+      } catch (err) {
+          console.log(err);
+          return res.status(400).json({ message: "Error adding user", error: err });
+      }
+
+      return res.status(201).json({ user });
+  });
 };
 
 // Get user by ID

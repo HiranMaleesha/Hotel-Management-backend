@@ -1,42 +1,32 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-
 const userSchema = new Schema({
-    Hall_Name:{
-        type : String, //dataType
-        required : true //validate
+    Hall_Name: {
+        type: String,
+        required: true
     },
-
     Capacity: {
         type: Number,
-        required: true,       
+        required: true
     },
-
     Location: {
-        type: String, // dataType
-        required: true, // validation
-        
+        type: String,
+        required: true
     },
-
-    Price:{
-        type : Number, //dataType
-        required : true //validate
+    Price: {
+        type: Number,
+        required: true
     },
-
     Hall_Type: {
         type: String,
         required: true,
-        enum: ['Banquet', 'Conference', 'Meeting Room','Ballroom',] // Define allowed hall type here
+        enum: ['Banquet', 'Conference', 'Meeting Room', 'Ballroom']
     },
-
-    Photos:{
-        type : String, //dataType
-        required : true //validate
+    Photos: {
+        data: Buffer,
+        contentType: String
     },
 });
 
-module.exports = mongoose.model(
-    "UserModel", //file name
-    userSchema //function name
-)
+module.exports = mongoose.model("UserModel", userSchema);
