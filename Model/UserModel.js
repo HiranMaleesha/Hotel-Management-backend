@@ -27,6 +27,12 @@ const userSchema = new Schema({
         data: Buffer,
         contentType: String
     },
+    Status: {
+        type: String,
+        required: true,
+        enum: ['Available', 'Booked'],
+        default: 'Available'
+    }
 });
 
 module.exports = mongoose.model("UserModel", userSchema);

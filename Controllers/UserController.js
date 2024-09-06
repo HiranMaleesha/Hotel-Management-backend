@@ -112,8 +112,27 @@ const deleteUser = async (req, res, next) => {
   return res.status(200).json({ message: "User deleted successfully" });
 };
 
+
+// Booking function in controller
+const updateUserStatus = async (req, res, next) => {
+  const id = req.params.id;
+  const { status } = req.body;
+
+  let user;
+  try {
+    user = await User.findByIdAndUpdate(id, { status }, { new: true });
+  } catch (err) {
+    return res.status(500).json({ message: "Error updating hall status" });
+  }
+
+  return res.status(200).json({ user });
+};
+
+exports.updateUserStatus = updateUserStatus;
+
 exports.getAllUsers = getAllUsers;
 exports.addUsers = addUsers;
 exports.getById = getById;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
+exports.updateUserStatus = updateUserStatus;
